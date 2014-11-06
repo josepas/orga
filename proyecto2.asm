@@ -35,7 +35,7 @@ main:
 	
 	la $t1 alfab			# Obtengo la letra A
 	
-	lb $t2 0($t1)			# meto la cadena  y el carater nulo
+	lb $t2 0($t1)			# meto la cadena y el carater nulo
 	sb $t2 0($v0)
 	sb $zero 1($v0)
 	
@@ -46,37 +46,20 @@ main:
 	sw $t1 4($s0)			# Inicializo el tamano en 1
 	
 	la $t3 alfab
-	addi $t3 $t3 1			# Inicio el iterador de la cadena en B
-itr:	
-	bgt $t1 25 fin
-		# $t3 iterador en el alfabeto
-		li $a0 12
-		li $v0 9
-		syscall			# Reservo el espacio del nodo
-		
-		lw $t4 8($s0)	# Obtengo el apuntador al ultimo
-		sw $v0 8($t4)	# Actualizo el apuntador al siguiente del ultimo
-		sw $v0 8($s0)	# Actualizo el apuntador al ultimo
-		
-		li $a0 2
-		li $v0 9		# Espacio para la cadena
-		syscall
-		
-		lb $t4 0($t3) 	# Obtengo la letra 
-		
-		sb $t4 0($v0)   # La meto en la caja
-		sb $zero 1($v0)
-		lw $t2 8($s0) 	# obtengo el apuntador al nuevo ultimo
-		sw $t1 4($t2)	# Coloco el indice en el nodo
-		sw $v0 0($t2) 	# la enlazo con el nodo 
-		
-		addi $t1 $t1 1
-		addi $t3 $t3 1
-			
-	b itr
-fin:
-	li $t1 26
-	sw $t1 4($s0)
+	addi $t3 $t3 1		# Inicio el iterador de la cadena en B
+	li $t2 1		# Inicio el contador de iteracines en 1
+	li $a0 1		# El tamano de las cadenas inic. es ctte.
+
+itrInic:
+	lb $s5 1($t3)
+	sb $zero 1($t3)		# Reemplazo el siguiente caracter por un cero
+	move $a1 $t3
+	jal agregarAlDicc
+	sb $s5 1($t3)		# Recupero el byte reemplazado
+	
+	addi $t3 $t3 1 		# Paso al siguiente caracter
+	addi $t2 $t2 1
+	bne $t2 26 itrInic
 	
 ####################   LECTURA DE LA CADENA   ####################
 
@@ -117,7 +100,7 @@ LZW:
 		sw $s3 0($t4)
 		addi $t4 $t4 4
 		
-		# Creamos la cadena con el tamano $s4 + 1 para el char nulo
+		# Creamos la cadena con el tamano $s4 para el char nulo
 		move $a0 $s4
 		move $a1 $s1
 		jal agregarAlDicc
